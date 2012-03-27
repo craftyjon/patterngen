@@ -1,4 +1,6 @@
 import Preset
 
 class CirclePreset(Preset):
-	pass
+	
+	def draw(self):
+		pass
