@@ -38,6 +38,11 @@ if __name__=="__main__":
 			if event.type == pygame.QUIT:
 				mixer.stop()
 				sys.exit()
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_PERIOD:
+					mixer.timebase.inject_beat()
+				if event.key == pygame.K_BACKSLASH:
+					mixer.timebase.toggle()
 
 		pygame.surfarray.blit_array(s, mixer.get_buffer())
 
