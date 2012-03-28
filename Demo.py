@@ -2,55 +2,59 @@ import pygame
 import sys
 from pygame.locals import *
 import colorsys
-from threading import Timer
 
-from Preset import Preset
-#from CirclePreset import CirclePreset
-
-def on_tick():
-	global tick_timer, p
-	p.draw()
-	tick_timer = Timer(0.5, on_tick).start()
-
+from timebase.metronome import Metronome
+from presets.colorstatic import ColorStatic
+from mixer import Mixer
 
 if __name__=="__main__":
 	pygame.init()
 
 	size = width, height = 344, 320
-
 	screen = pygame.display.set_mode(size)
+
+	f = pygame.font.SysFont("sans", 14)
 
 	#fps counter
 	last = 0
 	count = 0
 	now = pygame.time.get_ticks()
+	fps_surface = f.render("fps: %d" % last, True, (255,255,255), (0,0,0))
 
-	tick_timer = Timer(0.5, on_tick)
 
 	s = pygame.Surface((24,24))
 	sc = pygame.Surface((320,320))
-	p = Preset((24,24))
+	
+	mixer = Mixer((24,24))
+	mixer.load_preset(ColorStatic)
+	mixer.set_timebase(Metronome)
 
-	tick_timer.daemon = True
-	tick_timer.start()
+	mixer.run()
+
 
 	while 1:
 		start_time = pygame.time.get_ticks()
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
+				mixer.stop()
 				sys.exit()
 
-		pygame.surfarray.blit_array(s, p.get_buffer())
+		pygame.surfarray.blit_array(s, mixer.get_buffer())
 
 		sc = pygame.transform.smoothscale(s, (320,320))
 
 		screen.blit(sc, sc.get_rect())
 		screen.blit(s, (320,0))
-		pygame.display.flip()
 
 		count += 1
-		if pygame.time.get_ticks() - now > 1000.0:
+		if pygame.time.get_ticks() - now > 100.0:
 			now = pygame.time.get_ticks()
 			last = count
 			count = 0
-			print("fps:",last)
+			#print("fps:",last)
+			fps_surface = f.render("fps: %d" % (last*10), True, (255,255,255), (0,0,0))
+		screen.blit(fps_surface, (0,0))
+
+		pygame.display.flip()
+
+		

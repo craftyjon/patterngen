@@ -1,4 +1,4 @@
-import Preset
+from Preset import Preset
 
 class CirclePreset(Preset):
 	
