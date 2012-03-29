@@ -17,6 +17,7 @@ class Mixer:
 		self.next_preset = 1
 		self.loaded_preset = 1
 		self.running = False
+		self.paused = False
 		self.hard_cut = False
 		self.in_transition = False
 		self.preset_time = 1.0
@@ -27,7 +28,10 @@ class Mixer:
 		self.tick_callback = None
 	
 		for name,obj in inspect.getmembers(presets, inspect.isclass):
-			self.presets.append(obj(self.size))
+			try:
+				self.presets.append(obj(self.size))
+			except:
+				print "Error loading preset "+name+"!"
 
 	def run(self):
 		self.draw_timer.start()
@@ -74,6 +78,9 @@ class Mixer:
 	def set_timebase(self, timebase):
 		self.timebase = timebase(self.on_tick)
 
+	def toggle_paused(self):
+		self.paused = not self.paused
+
 	def draw(self):
 		if self.in_transition is True:
 			oldbuffer = (1.0 - (self.transition_state/self.transition_time)) * self.presets[self.active_preset].get_buffer()
@@ -83,11 +90,16 @@ class Mixer:
 			self.buffer = self.presets[self.active_preset].get_buffer()
 
 	def next(self):
-		if self.in_transition == True:
+		if self.in_transition == True or self.paused == True:
 			return False
 		self.next_preset = (self.active_preset + 1) % len(self.presets)
 		self.in_transition = True
 		self.transition_state = 0.0
+
+	def cut(self, delta):
+		self.active_preset = (self.active_preset + delta) % len(self.presets)
+		self.in_transition = False
+		self.preset_runtime = 0.0
 
 	def get_buffer(self):
 		return self.buffer

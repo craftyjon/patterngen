@@ -60,7 +60,13 @@ if __name__=="__main__":
 					mixer.timebase.toggle()
 				if event.key == pygame.K_SPACE:
 					mixer.next()
-				if event.key == pygame.K_ESCAPE:
+				if event.key == pygame.K_RIGHT:
+					mixer.cut(1)
+				if event.key == pygame.K_LEFT:
+					mixer.cut(-1)
+				if event.key == pygame.K_COMMA:
+					mixer.toggle_paused()
+				if event.key == pygame.K_ESCAPE or event.key== pygame.K_q:
 					mixer.stop()
 					sys.exit()
 
