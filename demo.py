@@ -1,12 +1,9 @@
 import pygame
 import sys
 from pygame.locals import *
-import colorsys
-
 import struct
 
 from timebase.metronome import Metronome
-
 from mixer import Mixer
 
 idx = 0
@@ -16,6 +13,10 @@ def serial_update(mixer_context):
 	data = struct.pack("BBBBBBBB", 0, arr[idx][idx][0], arr[idx][idx][1], arr[idx][idx][2], 1, arr[idx+1][idx+1][0], arr[idx+1][idx+1][1], arr[idx+1][idx+1][2])
 	ser.write(data)
 	#ser.flushOutput()
+
+def demo_update(mixer_context):
+	e = pygame.event.Event(pygame.USEREVENT, {'code':0})
+	pygame.event.post(e)
 
 if __name__=="__main__":
 	pygame.init()
@@ -42,39 +43,41 @@ if __name__=="__main__":
 	mixer = Mixer((24,24))
 	mixer.set_timebase(Metronome)
 
-	if ser is not None:
-		mixer.set_tick_callback(serial_update)
+	#if ser is not None:
+	#	mixer.set_tick_callback(serial_update)
+
+	mixer.set_tick_callback(demo_update)
 
 	mixer.run()
 
 	while 1:
-		start_time = pygame.time.get_ticks()
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
-				mixer.stop()
-				sys.exit()
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_PERIOD:
-					mixer.timebase.inject_beat()
-				if event.key == pygame.K_BACKSLASH:
-					mixer.timebase.toggle()
-				if event.key == pygame.K_SPACE:
-					mixer.next()
-				if event.key == pygame.K_RIGHT:
-					mixer.cut(1)
-				if event.key == pygame.K_LEFT:
-					mixer.cut(-1)
-				if event.key == pygame.K_COMMA:
-					mixer.toggle_paused()
-				if event.key == pygame.K_ESCAPE or event.key== pygame.K_q:
-					mixer.stop()
-					sys.exit()
-
-		try:
-			pygame.surfarray.blit_array(s, mixer.get_buffer())
-		except:
+		#for event in pygame.event.get():
+		event = pygame.event.wait()
+		if event.type == pygame.QUIT:
 			mixer.stop()
 			sys.exit()
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_PERIOD:
+				mixer.timebase.inject_beat()
+			if event.key == pygame.K_BACKSLASH:
+				mixer.timebase.toggle()
+			if event.key == pygame.K_SPACE:
+				mixer.next()
+			if event.key == pygame.K_RIGHT:
+				mixer.cut(1)
+			if event.key == pygame.K_LEFT:
+				mixer.cut(-1)
+			if event.key == pygame.K_COMMA:
+				mixer.toggle_paused()
+			if event.key == pygame.K_ESCAPE or event.key== pygame.K_q:
+				mixer.stop()
+				sys.exit()
+		if event.type == pygame.USEREVENT:
+			try:
+				pygame.surfarray.blit_array(s, mixer.get_buffer())
+			except:
+				mixer.stop()
+				sys.exit()
 
 		sc = pygame.transform.smoothscale(s, (320,320))
 
