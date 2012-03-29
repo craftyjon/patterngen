@@ -1,6 +1,7 @@
 import numpy as np
 from threading import Timer
 import inspect
+import time
 
 import presets
 
@@ -20,11 +21,13 @@ class Mixer:
 		self.paused = False
 		self.hard_cut = False
 		self.in_transition = False
-		self.preset_time = 1.0
-		self.transition_time = 0.25
+		self.preset_time = 4.0
+		self.transition_time = 0.75
 		self.transition_state = 0.0
 		self.preset_runtime = 0.0
 		self.time = 0.0
+		self.last_time = 0.0
+		self.time_delta = 0.0
 		self.tick_callback = None
 	
 		for name,obj in inspect.getmembers(presets, inspect.isclass):
@@ -34,6 +37,7 @@ class Mixer:
 				print "Error loading preset "+name+"!"
 
 	def run(self):
+		self.last_time = time.time()
 		self.draw_timer.start()
 		if self.timebase is not None:
 			self.timebase.start()
@@ -48,35 +52,35 @@ class Mixer:
 
 	def on_tick(self):
 		beat = self.timebase.is_beat()
-
+		self.time_delta = time.time() - self.last_time
+		self.last_time = time.time()
 		if self.preset_runtime >= self.preset_time:
 			self.preset_runtime = 0.0
 			self.next()
 
 		if self.in_transition:
 			if self.hard_cut is True and beat is True:
-				self.active_preset = self.next_preset
-				self.in_transition = False
-				self.presets[self.active_preset].tick(self.draw_interval, True)
+				self.cut(1)
+				self.presets[self.active_preset].tick(self.time_delta, True)
 			else:
 				if beat is True or self.transition_state > 0.0:	#delay start until beat
-					self.transition_state += self.draw_interval
+					self.transition_state += self.time_delta
 					if self.transition_state >= self.transition_time:
 						self.in_transition = False
 						t = self.active_preset
 						self.active_preset = self.next_preset
 						self.next_preset = t
-				self.presets[self.active_preset].tick(self.draw_interval, beat)
-				self.presets[self.next_preset].tick(self.draw_interval, beat)
+				self.presets[self.active_preset].tick(self.time_delta, beat)
+				self.presets[self.next_preset].tick(self.time_delta, beat)
 		else:
-			self.preset_runtime += self.draw_interval
-			self.presets[self.active_preset].tick(self.draw_interval, beat)
+			self.preset_runtime += self.time_delta
+			self.presets[self.active_preset].tick(self.time_delta, beat)
 
 		self.draw()
 
 		if self.tick_callback is not None:
 			self.tick_callback(self)
-			
+
 		self.draw_timer = Timer(self.draw_interval, self.on_tick).start()
 
 	def set_timebase(self, timebase):
