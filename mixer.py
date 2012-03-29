@@ -8,7 +8,7 @@ class Mixer:
 		self.preset_0 = None
 		self.preset_1 = None
 		self.timebase = None
-		self.draw_timer = Timer(0.033, self.on_tick)
+		self.draw_timer = Timer(0.005, self.on_tick)
 		self.draw_timer.daemon = True
 		self.active_preset = self.preset_0
 		self.running = False
@@ -17,6 +17,7 @@ class Mixer:
 		self.preset_time = 10.0
 		self.transition_time = 1.0
 		self.time = 0.0
+		self.tick_callback = None
 
 	def run(self):
 		self.draw_timer.start()
@@ -28,10 +29,15 @@ class Mixer:
 			self.draw_timer.cancel()
 		self.timebase.stop()
 
+	def set_tick_callback(self, cb):
+		self.tick_callback = cb
+
 	def on_tick(self):
-		self.active_preset.tick(0.033, self.timebase.is_beat())
+		self.active_preset.tick(0.005, self.timebase.is_beat())
 		self.draw()
-		self.draw_timer = Timer(0.033, self.on_tick).start()
+		if self.tick_callback is not None:
+			self.tick_callback(self)
+		self.draw_timer = Timer(0.005, self.on_tick).start()
 
 	def set_timebase(self, timebase):
 		self.timebase = timebase(self.on_tick)
