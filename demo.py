@@ -2,11 +2,11 @@ import pygame
 import sys
 from pygame.locals import *
 import colorsys
-import serial
+
 import struct
 
 from timebase.metronome import Metronome
-from presets.colorstatic import ColorStatic
+from presets.pinwheel import Pinwheel
 from mixer import Mixer
 
 idx = 0
@@ -38,19 +38,25 @@ if __name__=="__main__":
 	s = pygame.Surface((24,24))
 	sc = pygame.Surface((320,320))
 
-	ser = serial.Serial()
-	ser.setPort("/dev/ttyUSB1")
-	ser.setBaudrate(115200)
 	try:
-		ser.open()
-	except serial.SerialException:
-		print "Warning, could not open serial port"
+		import serial
+		ser = serial.Serial()
+		ser.setPort("/dev/ttyUSB1")
+		ser.setBaudrate(115200)
+		try:
+			ser.open()
+		except serial.SerialException:
+			print "Warning, could not open serial port"
+			ser = None
+	except:
 		ser = None
 	
 	mixer = Mixer((24,24))
-	mixer.load_preset(ColorStatic)
+	mixer.load_preset(Pinwheel)
 	mixer.set_timebase(Metronome)
-	mixer.set_tick_callback(serial_update)
+
+	if ser is not None:
+		mixer.set_tick_callback(serial_update)
 
 	mixer.run()
 
