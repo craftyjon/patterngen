@@ -19,9 +19,10 @@ class Mixer:
 		self.running = False
 		self.hard_cut = False
 		self.in_transition = False
-		self.preset_time = 10.0
+		self.preset_time = 1.0
 		self.transition_time = 0.25
 		self.transition_state = 0.0
+		self.preset_runtime = 0.0
 		self.time = 0.0
 		self.tick_callback = None
 	
@@ -43,6 +44,11 @@ class Mixer:
 
 	def on_tick(self):
 		beat = self.timebase.is_beat()
+		if self.in_transition == False:
+			self.preset_runtime += self.draw_interval
+		if self.preset_runtime >= self.preset_time:
+			self.preset_runtime = 0.0
+			self.next()
 		if self.in_transition:
 			if self.hard_cut is True and beat is True:
 				self.active_preset = self.next_preset
