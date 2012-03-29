@@ -27,13 +27,13 @@ if __name__=="__main__":
 	size = width, height = 344, 320
 	screen = pygame.display.set_mode(size)
 
-	f = pygame.font.SysFont("sans", 14)
+	#f = pygame.font.SysFont("sans", 14)
 
 	#fps counter
-	last = 0
-	count = 0
-	now = pygame.time.get_ticks()
-	fps_surface = f.render("fps: %d" % last, True, (255,255,255), (0,0,0))
+	#last = 0
+	#count = 0
+	#now = pygame.time.get_ticks()
+	#fps_surface = f.render("fps: %d" % last, True, (255,255,255), (0,0,0))
 
 
 	s = pygame.Surface((24,24))
@@ -77,21 +77,25 @@ if __name__=="__main__":
 				if event.key == pygame.K_SPACE:
 					mixer.next()
 
-		pygame.surfarray.blit_array(s, mixer.get_buffer())
+		try:
+			pygame.surfarray.blit_array(s, mixer.get_buffer())
+		except:
+			mixer.stop()
+			sys.exit()
 
 		sc = pygame.transform.smoothscale(s, (320,320))
 
 		screen.blit(sc, sc.get_rect())
 		screen.blit(s, (320,0))
 
-		count += 1
-		if pygame.time.get_ticks() - now > 100.0:
-			now = pygame.time.get_ticks()
-			last = count
-			count = 0
+		#count += 1
+		#if pygame.time.get_ticks() - now > 100.0:
+		#	now = pygame.time.get_ticks()
+		#	last = count
+		#	count = 0
 			#print("fps:",last)
-			fps_surface = f.render("fps: %d" % (last*10), True, (255,255,255), (0,0,0))
-		screen.blit(fps_surface, (0,0))
+		#	fps_surface = f.render("fps: %d" % (last*10), True, (255,255,255), (0,0,0))
+		#screen.blit(fps_surface, (0,0))
 
 		pygame.display.flip()
 
