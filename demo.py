@@ -6,34 +6,22 @@ import colorsys
 import struct
 
 from timebase.metronome import Metronome
-from presets import *
+
 from mixer import Mixer
 
 idx = 0
-
 def serial_update(mixer_context):
 	global ser
 	arr = mixer_context.buffer
-	
 	data = struct.pack("BBBBBBBB", 0, arr[idx][idx][0], arr[idx][idx][1], arr[idx][idx][2], 1, arr[idx+1][idx+1][0], arr[idx+1][idx+1][1], arr[idx+1][idx+1][2])
 	ser.write(data)
 	#ser.flushOutput()
-
 
 if __name__=="__main__":
 	pygame.init()
 
 	size = width, height = 344, 320
 	screen = pygame.display.set_mode(size)
-
-	#f = pygame.font.SysFont("sans", 14)
-
-	#fps counter
-	#last = 0
-	#count = 0
-	#now = pygame.time.get_ticks()
-	#fps_surface = f.render("fps: %d" % last, True, (255,255,255), (0,0,0))
-
 
 	s = pygame.Surface((24,24))
 	sc = pygame.Surface((320,320))
@@ -52,17 +40,12 @@ if __name__=="__main__":
 		ser = None
 	
 	mixer = Mixer((24,24))
-	
-	mixer.load_preset(StarryNight)
-	mixer.load_preset(Pinwheel)
-	#mixer.load_preset(ColorStatic)
 	mixer.set_timebase(Metronome)
 
 	if ser is not None:
 		mixer.set_tick_callback(serial_update)
 
 	mixer.run()
-
 
 	while 1:
 		start_time = pygame.time.get_ticks()
@@ -91,16 +74,4 @@ if __name__=="__main__":
 
 		screen.blit(sc, sc.get_rect())
 		screen.blit(s, (320,0))
-
-		#count += 1
-		#if pygame.time.get_ticks() - now > 100.0:
-		#	now = pygame.time.get_ticks()
-		#	last = count
-		#	count = 0
-			#print("fps:",last)
-		#	fps_surface = f.render("fps: %d" % (last*10), True, (255,255,255), (0,0,0))
-		#screen.blit(fps_surface, (0,0))
-
 		pygame.display.flip()
-
-		
