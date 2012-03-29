@@ -6,8 +6,7 @@ import colorsys
 import struct
 
 from timebase.metronome import Metronome
-from presets.pinwheel import Pinwheel
-from presets.colorstatic import ColorStatic
+from presets import *
 from mixer import Mixer
 
 idx = 0
@@ -53,8 +52,10 @@ if __name__=="__main__":
 		ser = None
 	
 	mixer = Mixer((24,24))
+	
+	mixer.load_preset(StarryNight)
 	mixer.load_preset(Pinwheel)
-	mixer.load_preset(ColorStatic)
+	#mixer.load_preset(ColorStatic)
 	mixer.set_timebase(Metronome)
 
 	if ser is not None:
@@ -76,6 +77,9 @@ if __name__=="__main__":
 					mixer.timebase.toggle()
 				if event.key == pygame.K_SPACE:
 					mixer.next()
+				if event.key == pygame.K_ESCAPE:
+					mixer.stop()
+					sys.exit()
 
 		try:
 			pygame.surfarray.blit_array(s, mixer.get_buffer())
