@@ -7,6 +7,7 @@ import struct
 
 from timebase.metronome import Metronome
 from presets.pinwheel import Pinwheel
+from presets.colorstatic import ColorStatic
 from mixer import Mixer
 
 idx = 0
@@ -53,6 +54,7 @@ if __name__=="__main__":
 	
 	mixer = Mixer((24,24))
 	mixer.load_preset(Pinwheel)
+	mixer.load_preset(ColorStatic)
 	mixer.set_timebase(Metronome)
 
 	if ser is not None:
@@ -72,6 +74,8 @@ if __name__=="__main__":
 					mixer.timebase.inject_beat()
 				if event.key == pygame.K_BACKSLASH:
 					mixer.timebase.toggle()
+				if event.key == pygame.K_SPACE:
+					mixer.next()
 
 		pygame.surfarray.blit_array(s, mixer.get_buffer())
 

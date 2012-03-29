@@ -33,7 +33,16 @@ class Mixer:
 		self.tick_callback = cb
 
 	def on_tick(self):
-		self.active_preset.tick(0.005, self.timebase.is_beat())
+		beat = self.timebase.is_beat()
+		if self.in_transition and beat:
+			if self.active_preset == self.preset_0:
+				self.active_preset = self.preset_1
+			else:
+				self.active_preset = self.preset_0
+			self.in_transition = False
+			self.active_preset.tick(0.005, True)
+		else:
+			self.active_preset.tick(0.005, beat)
 		self.draw()
 		if self.tick_callback is not None:
 			self.tick_callback(self)
@@ -56,7 +65,7 @@ class Mixer:
 		self.buffer = self.active_preset.get_buffer()
 
 	def next(self):
-		pass
+		self.in_transition = True
 
 	def get_buffer(self):
 		return self.buffer
