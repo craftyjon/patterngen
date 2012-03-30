@@ -18,8 +18,8 @@ class ParticleTest(Preset):
 	def draw(self):
 		if self.is_beat:# or np.random.rand() > 0.8:
 			for n in range(5):
-				self.ps.add_particle(pos=Point2D(0,0),vel=Point2D(5+2*np.random.rand(),7+2*np.random.rand()),accel=Point2D(5,2),color=ColorHSV(1.0,1.0,1.0,2.5,4.5,10))
-				self.ps.add_particle(pos=Point2D(23,23),vel=Point2D(-5-2*np.random.rand(),-7-2*np.random.rand()),accel=Point2D(-4,-3),color=ColorHSV(0.255,1.0,1.0,2.5,4.5,10))
+				self.ps.add_particle(pos=Point2D(0,0),vel=Point2D(5+2*np.random.rand(),7+2*np.random.rand()),accel=Point2D(5+2*np.random.rand(),2+10*np.random.rand()),color=ColorHSV(1.0,1.0,1.0,2.5,2.5,40))
+				self.ps.add_particle(pos=Point2D(23,23),vel=Point2D(-5-2*np.random.rand(),-7-2*np.random.rand()),accel=Point2D(-4-10*np.random.rand(),-3-2*np.random.rand()),color=ColorHSV(0.6,1.0,1.0,2.5,2.5,40))
 
 		self.ps.tick(self.interval)
 		
