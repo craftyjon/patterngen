@@ -70,12 +70,6 @@ class Particle:
 		#TODO: Add rasterization modes: quantize (default, below), blend (not implemented), etc
 		return (int(self.pos.x),int(self.pos.y))
 
-	def oob(self, size):
-		#TODO: make this more lenient? Maybe just cull them from being rendered but still 
-		# keep track of them so that they can veer off and back on the rendered output screen.
-		(x, y) = self.rasterize()
-		return not((x>=0) and (x<size[0]) and (y>=0) and (y<size[1]))
-
 	def tick(self, interval):
 		self.vel = self.vel + (interval*self.accel)
 		self.pos = self.pos + (interval*self.vel)
@@ -92,9 +86,20 @@ class ParticleSystem:
 		self.particles.append(Particle(pos, vel, accel, color))
 
 	def tick(self, interval):
-		
 		for particle in self.particles:
 			particle.tick(interval)
+
+	def cull(self, particle):
+		(x, y) = particle.rasterize()
+		return not((x>=0) and (x<self.size[0]) and (y>=0) and (y<self.size[1]))
+
+	def is_particle_dead(self, particle):
+		if particle.color.is_dead():
+			return True
+		(x, y) = particle.rasterize()
+		if (x < (-10)) or (x > (self.size[0]+10)) or (y < (-10)) or (y > (self.size[1]+10)):
+			return True
+		return False
 
 	def rasterize(self, backdrop=None):
 		# TODO implement a separate compositing function to make this easier / more reusable
@@ -102,10 +107,12 @@ class ParticleSystem:
 			self.buffer = np.copy(backdrop)
 		else:
 			self.buffer = np.zeros((self.size[0], self.size[1], 3), dtype=int)
-		# cull dead particles
-		self.particles[:] = [particle for particle in self.particles if (not particle.color.is_dead() and not particle.oob(self.size))]
+		# delete dead particles
+		self.particles[:] = [particle for particle in self.particles if not self.is_particle_dead(particle)]
+		# cull offscreen particles
+		renderlist = [particle for particle in self.particles if not self.cull(particle)]
 
-		for particle in self.particles:
+		for particle in renderlist:
 			loc = particle.rasterize()
 			color = particle.color.get_rgb()
 			# TODO once we have a real compositor (see above), do some color blending
