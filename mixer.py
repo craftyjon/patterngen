@@ -21,8 +21,8 @@ class Mixer:
 		self.paused = False
 		self.hard_cut = False
 		self.in_transition = False
-		self.preset_time = 4.0
-		self.transition_time = 0.75
+		self.preset_time = 8.0
+		self.transition_time = 1.25
 		self.transition_state = 0.0
 		self.preset_runtime = 0.0
 		self.time = 0.0
@@ -98,7 +98,7 @@ class Mixer:
 			self.buffer = self.presets[self.active_preset].get_buffer()
 
 	def next(self):
-		if self.in_transition == True or self.paused == True:
+		if self.in_transition == True or self.paused == True or len(self.presets) < 2:
 			return False
 		self.next_preset = (self.active_preset + 1) % len(self.presets)
 		self.in_transition = True
