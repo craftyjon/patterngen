@@ -67,9 +67,12 @@ class Particle:
 		self.color = color
 
 	def rasterize(self):
+		#TODO: Add rasterization modes: quantize (default, below), blend (not implemented), etc
 		return (int(self.pos.x),int(self.pos.y))
 
 	def oob(self, size):
+		#TODO: make this more lenient? Maybe just cull them from being rendered but still 
+		# keep track of them so that they can veer off and back on the rendered output screen.
 		(x, y) = self.rasterize()
 		return not((x>=0) and (x<size[0]) and (y>=0) and (y<size[1]))
 
@@ -94,6 +97,7 @@ class ParticleSystem:
 			particle.tick(interval)
 
 	def rasterize(self, backdrop=None):
+		# TODO implement a separate compositing function to make this easier / more reusable
 		if backdrop is not None:
 			self.buffer = np.copy(backdrop)
 		else:
@@ -104,6 +108,8 @@ class ParticleSystem:
 		for particle in self.particles:
 			loc = particle.rasterize()
 			color = particle.color.get_rgb()
+			# TODO once we have a real compositor (see above), do some color blending
+			# of overlapping particles (then compose the final particle output on top of the input backdrop)
 			#if np.in1d(self.buffer[loc[0]][loc[1]],[0,0,0]).all():
 			self.buffer[loc[0]][loc[1]][0] = color[0]
 			self.buffer[loc[0]][loc[1]][1] = color[1]
