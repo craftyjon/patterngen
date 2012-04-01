@@ -3,12 +3,13 @@ from threading import Timer
 import inspect
 import time
 
+from frame import Frame
 import presets
 
 class Mixer:
 	def __init__(self, size=(24,24)):
 		self.size = size
-		self.buffer = np.zeros((size[0], size[1], 3), dtype=int)
+		self.frame = Frame(size)
 		self.presets = []
 		self.timebase = None
 		self.draw_interval = 0.005
@@ -91,11 +92,11 @@ class Mixer:
 
 	def draw(self):
 		if self.in_transition is True:
-			oldbuffer = (1.0 - (self.transition_state/self.transition_time)) * self.presets[self.active_preset].get_buffer()
-			newbuffer = (self.transition_state/self.transition_time) * self.presets[self.next_preset].get_buffer()
-			self.buffer = oldbuffer.astype('B') + newbuffer.astype('B')
+			oldframe = self.presets[self.active_preset].get_frame() * (1.0 - (self.transition_state/self.transition_time))
+			newframe = self.presets[self.next_preset].get_frame() * (self.transition_state/self.transition_time)
+			self.frame = oldframe + newframe
 		else:
-			self.buffer = self.presets[self.active_preset].get_buffer()
+			self.frame = self.presets[self.active_preset].get_frame()
 
 	def next(self):
 		if self.in_transition == True or self.paused == True or len(self.presets) < 2:
@@ -109,5 +110,5 @@ class Mixer:
 		self.in_transition = False
 		self.preset_runtime = 0.0
 
-	def get_buffer(self):
-		return self.buffer
+	def get_frame(self):
+		return self.frame

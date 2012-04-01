@@ -1,8 +1,10 @@
 import numpy as np
+from frame import Frame
 
 class Preset:
 	def __init__(self, size=(24,24)):
-		self.buffer = np.zeros((size[0], size[1], 3), dtype=int)
+		self.size = size
+		self.frame = Frame(size)
 		self.is_beat = False
 		self.interval = 0
 
@@ -17,5 +19,5 @@ class Preset:
 		self.is_beat = is_beat
 		self.draw()
 
-	def get_buffer(self):
-		return self.buffer
+	def get_frame(self):
+		return self.frame

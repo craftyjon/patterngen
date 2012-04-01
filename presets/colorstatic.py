@@ -10,7 +10,7 @@ class ColorStatic(Preset):
 	def draw(self):
 		for x in range(self.size[0]):
 			for y in range(self.size[1]):
-				el = self.buffer[x][y]
+				el = self.frame.buffer[x][y]
 				el[0] *= 0.9
 				el[1] *= 0.9
 				el[2] *= 0.9

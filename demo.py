@@ -15,7 +15,10 @@ def serial_update(mixer_context):
 	#ser.flushOutput()
 
 def demo_update(mixer_context):
+	global ser
 	e = pygame.event.Event(pygame.USEREVENT, {'code':0})
+	if ser is not None:
+		serial_update(mixer_context)
 	pygame.event.post(e)
 
 if __name__=="__main__":
@@ -51,7 +54,7 @@ if __name__=="__main__":
 	mixer.run()
 
 	while 1:
-		#for event in pygame.event.get():
+		#for event6 in pygame.event.get():
 		event = pygame.event.wait()
 		if event.type == pygame.QUIT:
 			mixer.stop()
@@ -74,7 +77,7 @@ if __name__=="__main__":
 				sys.exit()
 		if event.type == pygame.USEREVENT:
 			try:
-				pygame.surfarray.blit_array(s, mixer.get_buffer())
+				pygame.surfarray.blit_array(s, mixer.get_frame().buffer)
 			except:
 				mixer.stop()
 				sys.exit()

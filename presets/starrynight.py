@@ -15,7 +15,7 @@ class StarryNight(Preset):
 
 		for x in range(self.size[0]):
 			for y in range(self.size[1]):
-				el = self.buffer[x][y]
+				el = self.frame.buffer[x][y]
 
 				#hue = 0.7 + ((np.random.rand()*0.1)-0.05)
 				hue = self.stars[x][y][1]

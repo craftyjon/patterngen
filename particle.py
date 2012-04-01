@@ -1,6 +1,8 @@
 import colorsys
 import numpy as np
 
+from frame import Frame
+
 class Point2D:
 	def __init__(self, x=0.0, y=0.0):
 		self.x = x
@@ -80,7 +82,7 @@ class ParticleSystem:
 	def __init__(self, size=(16,16)):
 		self.particles = []
 		self.size = size
-		self.buffer = np.zeros((size[0], size[1], 3), dtype=int)
+		self.frame = Frame(size)
 
 	def add_particle(self, pos=Point2D(), vel=Point2D(), accel=Point2D(), color=ColorHSV()):
 		self.particles.append(Particle(pos, vel, accel, color))
@@ -101,12 +103,8 @@ class ParticleSystem:
 			return True
 		return False
 
-	def rasterize(self, backdrop=None):
-		# TODO implement a separate compositing function to make this easier / more reusable
-		if backdrop is not None:
-			self.buffer = np.copy(backdrop)
-		else:
-			self.buffer = np.zeros((self.size[0], self.size[1], 3), dtype=int)
+	def rasterize(self):
+		self.frame.clear()
 		# delete dead particles
 		self.particles[:] = [particle for particle in self.particles if not self.is_particle_dead(particle)]
 		# cull offscreen particles
@@ -118,11 +116,11 @@ class ParticleSystem:
 			# TODO once we have a real compositor (see above), do some color blending
 			# of overlapping particles (then compose the final particle output on top of the input backdrop)
 			#if np.in1d(self.buffer[loc[0]][loc[1]],[0,0,0]).all():
-			self.buffer[loc[0]][loc[1]][0] = color[0]
-			self.buffer[loc[0]][loc[1]][1] = color[1]
-			self.buffer[loc[0]][loc[1]][2] = color[2]
+			self.frame.buffer[loc[0]][loc[1]][0] = color[0]
+			self.frame.buffer[loc[0]][loc[1]][1] = color[1]
+			self.frame.buffer[loc[0]][loc[1]][2] = color[2]
 			#else:
 			#	self.buffer[loc[0]][loc[1]][0] = int((self.buffer[loc[0]][loc[1]][0]+color[0])/2.0)
 			#	self.buffer[loc[0]][loc[1]][1] = int((self.buffer[loc[0]][loc[1]][1]+color[1])/2.0)
 			#	self.buffer[loc[0]][loc[1]][2] = int((self.buffer[loc[0]][loc[1]][2]+color[2])/2.0)
-		return self.buffer
+		return self.frame
