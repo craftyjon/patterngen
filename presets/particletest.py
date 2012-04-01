@@ -17,8 +17,9 @@ class ParticleTest(Preset):
 		if self.is_beat:# or np.random.rand() > 0.8:
 			self.backdrop_hd *= -1
 			for n in range(5):
-				self.ps.add_particle(pos=Point2D(0,0),vel=Point2D(5+2*np.random.rand(),7+2*np.random.rand()),accel=Point2D(5+2*np.random.rand(),2+10*np.random.rand()),color=ColorHSV(1.0,1.0,1.0,25,2.5,50))
-				self.ps.add_particle(pos=Point2D(23,23),vel=Point2D(-5-2*np.random.rand(),-7-2*np.random.rand()),accel=Point2D(-4-10*np.random.rand(),-3-2*np.random.rand()),color=ColorHSV(0.6,1.0,1.0,100,2.5,40))
+				self.ps.add_particle(pos=Point2D(0,0),vel=Point2D(15+2*np.random.rand(),1+2*np.random.rand()),accel=Point2D(-9-2*np.random.rand(),2+10*np.random.rand()),color=ColorHSV(1.0,1.0,1.0,(lambda c: (c.pos.x/24.0)),2.5,20))
+				self.ps.add_particle(pos=Point2D(23,23),vel=Point2D(-15+2*np.random.rand(),-2-3*np.random.rand()),accel=Point2D(10+2*np.random.rand(),-2-10*np.random.rand()),color=ColorHSV(1.0,1.0,1.0,(lambda c: (c.pos.x/24.0)),2.5,20))
+				#self.ps.add_particle(pos=Point2D(23,23),vel=Point2D(-5-2*np.random.rand(),-7-2*np.random.rand()),accel=Point2D(-4-10*np.random.rand(),-3-2*np.random.rand()),color=ColorHSV(0.6,1.0,1.0,100,2.5,40))
 
 		for x in range(self.size[0]):
 			for y in range(self.size[1]):
@@ -29,4 +30,5 @@ class ParticleTest(Preset):
 
 		self.ps.tick(self.interval)
 		
-		self.frame = self.backdrop.compose(self.ps.rasterize())
+		#self.frame = self.backdrop.compose(self.ps.rasterize())
+		self.frame = self.ps.rasterize()

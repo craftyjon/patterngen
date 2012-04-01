@@ -37,6 +37,7 @@ class ColorHSV:
 		self.dh = dh
 		self.ds = ds
 		self.dv = dv
+		self.parent = None
 
 	def set_decay_coeffs(self, dh, ds, dv):
 		self.dh = dh
@@ -50,9 +51,18 @@ class ColorHSV:
 		(self.h, self.s, self.v) = colorsys.rgb_to_hsv(rf,gf,bf)
 
 	def decay(self, interval):
-		self.h -= 0.01 * interval * (self.dh)
-		self.s -= 0.01 * interval * (self.ds)
-		self.v -= 0.01 * interval * (self.dv)
+		if callable(self.dh):
+			self.h = self.dh(self.parent)
+		else:
+			self.h -= 0.01 * interval * (self.dh)
+		if callable(self.ds):
+			self.s = self.ds(self.parent)
+		else:
+			self.s -= 0.01 * interval * (self.ds)
+		if callable(self.dv):
+			self.v = self.dv(self.parent)
+		else:
+			self.v -= 0.01 * interval * (self.dv)
 
 	def get_rgb(self):
 		(rf,gf,bf) = colorsys.hsv_to_rgb(self.h, self.s, self.v)
@@ -67,6 +77,7 @@ class Particle:
 		self.vel = vel
 		self.accel = accel
 		self.color = color
+		self.color.parent = self
 
 	def rasterize(self):
 		#TODO: Add rasterization modes: quantize (default, below), blend (not implemented), etc
@@ -113,14 +124,9 @@ class ParticleSystem:
 		for particle in renderlist:
 			loc = particle.rasterize()
 			color = particle.color.get_rgb()
-			# TODO once we have a real compositor (see above), do some color blending
-			# of overlapping particles (then compose the final particle output on top of the input backdrop)
-			#if np.in1d(self.buffer[loc[0]][loc[1]],[0,0,0]).all():
+
 			self.frame.buffer[loc[0]][loc[1]][0] = color[0]
 			self.frame.buffer[loc[0]][loc[1]][1] = color[1]
 			self.frame.buffer[loc[0]][loc[1]][2] = color[2]
-			#else:
-			#	self.buffer[loc[0]][loc[1]][0] = int((self.buffer[loc[0]][loc[1]][0]+color[0])/2.0)
-			#	self.buffer[loc[0]][loc[1]][1] = int((self.buffer[loc[0]][loc[1]][1]+color[1])/2.0)
-			#	self.buffer[loc[0]][loc[1]][2] = int((self.buffer[loc[0]][loc[1]][2]+color[2])/2.0)
+
 		return self.frame

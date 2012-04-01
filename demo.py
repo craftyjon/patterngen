@@ -46,15 +46,11 @@ if __name__=="__main__":
 	mixer = Mixer((24,24))
 	mixer.set_timebase(Metronome)
 
-	#if ser is not None:
-	#	mixer.set_tick_callback(serial_update)
-
 	mixer.set_tick_callback(demo_update)
 
 	mixer.run()
 
 	while 1:
-		#for event6 in pygame.event.get():
 		event = pygame.event.wait()
 		if event.type == pygame.QUIT:
 			mixer.stop()
