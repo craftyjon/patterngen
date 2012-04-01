@@ -1,5 +1,6 @@
 import colorsys
 import numpy as np
+import copy
 
 from frame import Frame
 
@@ -84,9 +85,38 @@ class Particle:
 		return (int(self.pos.x),int(self.pos.y))
 
 	def tick(self, interval):
-		self.vel = self.vel + (interval*self.accel)
+		if callable(self.accel):
+			self.vel = self.vel + self.accel(self)
+		else:
+			self.vel = self.vel + (interval*self.accel)
+
 		self.pos = self.pos + (interval*self.vel)
 		self.color.decay(interval)
+
+
+# TODO: Make a particle emitter to simplify code on the preset side
+class ParticleEmitter:
+	def __init__(self, pos=Point2D()):
+		self.pos = pos
+		self.particle = Particle(pos=pos)
+		self.ps = None
+
+	def set_vel(self, vel=Point2D()):
+		self.particle.vel = vel
+
+	def set_accel(self, accel=Point2D()):
+		self.particle.accel = accel
+
+	def set_color(self, color=ColorHSV()):
+		self.particle.color = color
+		self.particle.color.parent = self.particle
+
+	def bind(self, ps):
+		self.ps = ps
+
+	def emit(self, n=1):
+		for i in range(n):
+			self.ps.add_particle(copy.deepcopy(self.particle))
 
 
 class ParticleSystem:
@@ -95,8 +125,11 @@ class ParticleSystem:
 		self.size = size
 		self.frame = Frame(size)
 
-	def add_particle(self, pos=Point2D(), vel=Point2D(), accel=Point2D(), color=ColorHSV()):
-		self.particles.append(Particle(pos, vel, accel, color))
+	def add_particle(self, particle=None, pos=Point2D(), vel=Point2D(), accel=Point2D(), color=ColorHSV()):
+		if particle is not None:
+			self.particles.append(particle)
+		else:
+			self.particles.append(Particle(pos, vel, accel, color))
 
 	def tick(self, interval):
 		for particle in self.particles:

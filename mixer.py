@@ -32,10 +32,11 @@ class Mixer:
 		self.tick_callback = None
 	
 		for name,obj in inspect.getmembers(presets, inspect.isclass):
-			try:
-				self.presets.append(obj(self.size))
-			except:
-				print "Error loading preset "+name+"!"
+			#try:
+			self.presets.append(obj(self.size))
+			#except:
+			#	print str(e)
+			#	print "Error loading preset "+name+"!"
 
 	def run(self):
 		self.last_time = time.time()
