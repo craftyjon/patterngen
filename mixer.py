@@ -40,18 +40,23 @@ class Mixer:
 	def run(self):
 		self.last_time = time.time()
 		self.draw_timer.start()
+		self.running = True
 		if self.timebase is not None:
 			self.timebase.start()
 
 	def stop(self):
+		self.running = False
 		if self.draw_timer is not None:
 			self.draw_timer.cancel()
+			self.draw_timer.join()
 		self.timebase.stop()
 
 	def set_tick_callback(self, cb):
 		self.tick_callback = cb
 
 	def on_tick(self):
+		if not self.running:
+			return False
 		beat = self.timebase.is_beat()
 		self.time_delta = time.time() - self.last_time
 		self.last_time = time.time()

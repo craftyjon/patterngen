@@ -19,7 +19,7 @@ class Metronome(Timebase):
 	def stop(self):
 		self.running = False
 		if self.timer is not None:
-			self.timer.cancel()
+			#self.timer.cancel()
 			self.timer.join()
 
 	def toggle(self):
@@ -42,4 +42,6 @@ class Metronome(Timebase):
 		#self.callback(self.interval)
 		self.beat = True
 		if self.running == True:
-			self.timer = Timer(self.interval, self.on_tick).start()
+			self.timer = Timer(self.interval, self.on_tick)
+			self.timer.daemon = True
+			self.timer.start()
