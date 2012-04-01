@@ -1,5 +1,7 @@
-from timebase import Timebase
 from threading import Timer
+
+from timebase import Timebase
+from audiodata import AudioData
 
 class Metronome(Timebase):
 	def __init__(self, callback):
@@ -8,7 +10,6 @@ class Metronome(Timebase):
 		self.callback = callback
 		self.timer = Timer(self.interval, self.on_tick)
 		self.timer.daemon = True
-		self.beat = False
 		self.running = False
 
 	def start(self):
@@ -19,7 +20,7 @@ class Metronome(Timebase):
 	def stop(self):
 		self.running = False
 		if self.timer is not None:
-			#self.timer.cancel()
+			self.timer.cancel()
 			self.timer.join()
 
 	def toggle(self):
@@ -29,18 +30,18 @@ class Metronome(Timebase):
 			self.start()
 
 	def is_beat(self):
-		if self.beat:
-			self.beat = False
+		if self.audio_data.is_beat is True:
+			self.audio_data.is_beat = False
 			return True
 		else:
 			return False
 
 	def inject_beat(self):
-		self.beat = True
+		self.audio_data.is_beat = True
 
 	def on_tick(self):
 		#self.callback(self.interval)
-		self.beat = True
+		self.audio_data.is_beat = True
 		if self.running == True:
 			self.timer = Timer(self.interval, self.on_tick)
 			self.timer.daemon = True

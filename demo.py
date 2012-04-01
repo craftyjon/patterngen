@@ -26,6 +26,7 @@ if __name__=="__main__":
 
 	size = width, height = 344, 320
 	screen = pygame.display.set_mode(size)
+	pygame.event.set_allowed([QUIT, KEYDOWN, USEREVENT])
 
 	s = pygame.Surface((24,24))
 	sc = pygame.Surface((320,320))

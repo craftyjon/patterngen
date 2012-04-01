@@ -22,7 +22,7 @@ class ParticleTest(Preset):
 
 	def draw(self):
 		self.backdrop_hs += 0.01
-		if self.is_beat:# or np.random.rand() > 0.8:
+		if self.audio_data.is_beat:# or np.random.rand() > 0.8:
 			#self.backdrop_hd *= -1
 			for n in range(5):
 				self.pe1.set_accel(Point2D(-9-2*np.random.rand(),2+10*np.random.rand()))

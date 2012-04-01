@@ -4,6 +4,7 @@ import inspect
 import time
 
 from frame import Frame
+from timebase.audiodata import AudioData
 import presets
 
 class Mixer:
@@ -58,7 +59,7 @@ class Mixer:
 	def on_tick(self):
 		if not self.running:
 			return False
-		beat = self.timebase.is_beat()
+		audio_data = self.timebase.get_data()
 		self.time_delta = time.time() - self.last_time
 		self.last_time = time.time()
 		if self.preset_runtime >= self.preset_time:
@@ -66,22 +67,22 @@ class Mixer:
 			self.next()
 
 		if self.in_transition:
-			if self.hard_cut is True and beat is True:
+			if self.hard_cut is True and audio_data.is_beat is True:
 				self.cut(1)
-				self.presets[self.active_preset].tick(self.time_delta, True)
+				self.presets[self.active_preset].tick(self.time_delta, audio_data)
 			else:
-				if beat is True or self.transition_state > 0.0:	#delay start until beat
+				if audio_data.is_beat is True or self.transition_state > 0.0:	#delay start until beat
 					self.transition_state += self.time_delta
 					if self.transition_state >= self.transition_time:
 						self.in_transition = False
 						t = self.active_preset
 						self.active_preset = self.next_preset
 						self.next_preset = t
-				self.presets[self.active_preset].tick(self.time_delta, beat)
-				self.presets[self.next_preset].tick(self.time_delta, beat)
+				self.presets[self.active_preset].tick(self.time_delta, audio_data)
+				self.presets[self.next_preset].tick(self.time_delta, audio_data)
 		else:
 			self.preset_runtime += self.time_delta
-			self.presets[self.active_preset].tick(self.time_delta, beat)
+			self.presets[self.active_preset].tick(self.time_delta, audio_data)
 
 		self.draw()
 

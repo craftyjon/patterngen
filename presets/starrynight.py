@@ -9,8 +9,8 @@ class StarryNight(Preset):
 		self.stars = np.zeros((size[0],size[1],2), dtype=float)
 
 	def draw(self):
-		if self.is_beat or np.random.rand() > 0.8:
-			for i in range(2+3*self.is_beat):
+		if self.audio_data.is_beat or np.random.rand() > 0.8:
+			for i in range(2+3*self.audio_data.is_beat):
 				self.stars[int(np.random.rand()*self.size[0])][int(np.random.rand()*self.size[1])] = [(0.3 + (0.7*self.is_beat)),0.7 + ((np.random.rand()*0.1)-0.05)]
 
 		for x in range(self.size[0]):

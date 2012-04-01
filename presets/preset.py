@@ -1,11 +1,12 @@
 import numpy as np
 from frame import Frame
+from timebase.audiodata import AudioData
 
 class Preset:
 	def __init__(self, size=(24,24)):
 		self.size = size
 		self.frame = Frame(size)
-		self.is_beat = False
+		self.audio_data = AudioData()
 		self.interval = 0
 
 	def setup(self):
@@ -14,9 +15,9 @@ class Preset:
 	def draw(self):
 		pass
 
-	def tick(self, interval, is_beat):
+	def tick(self, interval, ad):
 		self.interval = interval
-		self.is_beat = is_beat
+		self.audio_data = ad
 		self.draw()
 
 	def get_frame(self):

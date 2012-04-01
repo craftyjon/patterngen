@@ -12,7 +12,7 @@ class Pinwheel(Preset):
 		self.max_radius = math.sqrt((((size[0]/2)^2) +  ((size[1]/2)^2)))
 
 	def draw(self):
-		self.rot += self.interval * (1 + 50*self.is_beat)
+		self.rot += self.interval * (1 + 50*self.audio_data.is_beat)
 		for x in range(self.size[0]):
 			for y in range(self.size[1]):
 				el = self.frame.buffer[x][y]
