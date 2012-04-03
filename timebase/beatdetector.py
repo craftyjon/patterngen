@@ -3,6 +3,7 @@ import pyaudio
 import struct
 import scipy
 import scipy.fftpack
+import scipy.signal
 import math
 import copy
 import numpy as np
@@ -57,15 +58,13 @@ class BeatDetector(Timebase):
 			packet = self.q.get(block=True)
 			#print str(packet)
 			self.demo_data=scipy.array(struct.unpack("%dh"%(self.buffer_size),packet))
-			ffty = scipy.fftpack.fft(self.demo_data)
-			fftx = scipy.fftpack.rfftfreq(self.buffer_size, 1.0 / self.sample_rate)
-			self.fftx = fftx[0:len(fftx)/4]
-			ffty = abs(ffty[0:len(ffty)/2])/1000
-			ffty1=ffty[:len(ffty)/2]
-			ffty2=ffty[len(ffty)/2::]+2
-			ffty2=ffty2[::-1]
-			ffty=ffty1+ffty2
-			self.ffty=scipy.log(ffty)-2
+
+			decimated = scipy.signal.decimate(self.demo_data, 16, ftype='fir')
+			ffty = np.fft.fft(decimated)
+			fftx = scipy.fftpack.fftfreq(self.buffer_size / 16, 16.0 / self.sample_rate)
+
+			self.fftx = fftx[0:len(fftx)/2]
+			self.ffty = abs(ffty[0:len(ffty)/2])/1000
 
 			self.data_event.set()
 
@@ -108,4 +107,5 @@ if __name__=="__main__":
 	print len(bd.fftx)
 	print len(bd.ffty)
 	line, = plt.plot(bd.fftx,bd.ffty)
+	#plt.plot(bd.demo_data)
 	plt.show()
