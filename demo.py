@@ -20,7 +20,8 @@ def demo_update(mixer_context):
 	e = pygame.event.Event(pygame.USEREVENT, {'code':0})
 	if ser is not None:
 		serial_update(mixer_context)
-	pygame.event.post(e)
+	if not pygame.event.peek(pygame.USEREVENT):
+		pygame.event.post(e)
 
 if __name__=="__main__":
 	pygame.init()

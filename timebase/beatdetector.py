@@ -88,8 +88,9 @@ class BeatDetector(Timebase):
 	def post_data(self):
 		pass
 
-	def get_data(self):
-		return copy.deepcopy(self.audio_data)
+	#def get_data(self):
+	#	c =  copy.deepcopy(self.audio_data)
+	#	return c
 
 def cbf(callback_context):
 	pass
