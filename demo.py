@@ -2,6 +2,7 @@ import pygame
 import sys
 from pygame.locals import *
 import struct
+from array import array
 
 #from timebase.metronome import Metronome
 from timebase.beatdetector import BeatDetector
@@ -10,9 +11,11 @@ from mixer import Mixer
 idx = 0
 def serial_update(mixer_context):
 	global ser
-	arr = mixer_context.buffer
-	data = struct.pack("BBBBBBBB", 0, arr[idx][idx][0], arr[idx][idx][1], arr[idx][idx][2], 1, arr[idx+1][idx+1][0], arr[idx+1][idx+1][1], arr[idx+1][idx+1][2])
-	ser.write(data)
+	flatlist = mixer_context.frame.buffer.flatten().tolist()
+	arr = array('B', flatlist)
+	#Np = mixer_context.size[0] * mixer_context.size[1] * 4
+	#data = struct.pack("%dB" % Np, arr)
+	ser.write(arr)
 	#ser.flushOutput()
 
 def demo_update(mixer_context):
@@ -26,18 +29,21 @@ def demo_update(mixer_context):
 if __name__=="__main__":
 	pygame.init()
 
-	size = width, height = 344, 320
+	size = width, height = 336, 320
 	screen = pygame.display.set_mode(size)
 	pygame.event.set_allowed([QUIT, KEYDOWN, USEREVENT])
 
-	s = pygame.Surface((24,24))
+	s = pygame.Surface((16,16))
 	sc = pygame.Surface((320,320))
 
 	try:
 		import serial
 		ser = serial.Serial()
-		ser.setPort("/dev/ttyUSB1")
-		ser.setBaudrate(115200)
+		#ser.setPort("/dev/ttyUSB1")
+		ser.setPort("COM13")
+		ser.setBaudrate(3000000)		# from testing, we are going to need a super high BR for 16x16
+		# TODO: If we are using fewer than 16x16 LEDs, speed this up by mapping them
+		# and only transmitting the ones we use
 		try:
 			ser.open()
 		except serial.SerialException:
@@ -46,7 +52,7 @@ if __name__=="__main__":
 	except:
 		ser = None
 	
-	mixer = Mixer((24,24))
+	mixer = Mixer((16,16))
 	#mixer.set_timebase(Metronome)
 	mixer.set_timebase(BeatDetector)
 
