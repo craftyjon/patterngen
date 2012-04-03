@@ -3,7 +3,8 @@ import sys
 from pygame.locals import *
 import struct
 
-from timebase.metronome import Metronome
+#from timebase.metronome import Metronome
+from timebase.beatdetector import BeatDetector
 from mixer import Mixer
 
 idx = 0
@@ -45,7 +46,8 @@ if __name__=="__main__":
 		ser = None
 	
 	mixer = Mixer((24,24))
-	mixer.set_timebase(Metronome)
+	#mixer.set_timebase(Metronome)
+	mixer.set_timebase(BeatDetector)
 
 	mixer.set_tick_callback(demo_update)
 

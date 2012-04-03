@@ -92,7 +92,8 @@ class Mixer:
 		self.draw_timer = Timer(self.draw_interval, self.on_tick).start()
 
 	def set_timebase(self, timebase):
-		self.timebase = timebase(self.on_tick)
+		self.timebase = timebase(None)
+		
 
 	def toggle_paused(self):
 		self.paused = not self.paused

@@ -31,6 +31,9 @@ class BeatDetector(Timebase):
 		self.demo_data = []
 		self.ffty = []
 		self.fftx = []
+		self.is_beat = False
+		self.audio_data = AudioData()
+		self.ticks_since_beat = 101
 
 	def start(self):
 		self.create_input_thread()
@@ -66,13 +69,27 @@ class BeatDetector(Timebase):
 			self.fftx = fftx[0:len(fftx)/2]
 			self.ffty = abs(ffty[0:len(ffty)/2])/1000
 
+			# TODO make this more parametric / add options
+			kick_energy = np.trapz(self.ffty[4:7])
+			if (kick_energy > 800) and (self.is_beat==False) and (self.ticks_since_beat > 100):
+				self.ticks_snice_beat = 0
+				self.is_beat = True
+			else:
+				self.ticks_since_beat += 1
+				self.is_beat = False
+
+			self.audio_data.is_beat = self.is_beat
+			self.audio_data.duration = (self.buffer_size) / self.sample_rate
+			self.audio_data.waveform = packet
+			self.audio_data.fft = self.ffty
+
 			self.data_event.set()
 
 	def post_data(self):
 		pass
 
 	def get_data(self):
-		print int(self.demo_data)
+		return copy.deepcopy(self.audio_data)
 
 def cbf(callback_context):
 	pass
@@ -106,6 +123,6 @@ if __name__=="__main__":
 	bd.stop()
 	print len(bd.fftx)
 	print len(bd.ffty)
-	line, = plt.plot(bd.fftx,bd.ffty)
+	line, = plt.plot(bd.ffty)
 	#plt.plot(bd.demo_data)
 	plt.show()
