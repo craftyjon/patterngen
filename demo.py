@@ -7,15 +7,13 @@ from array import array
 #from timebase.metronome import Metronome
 from timebase.beatdetector import BeatDetector
 from mixer import Mixer
+from outputmap import OutputMap
 
 idx = 0
 def serial_update(mixer_context):
-	global ser
-	flatlist = mixer_context.frame.buffer.flatten().tolist()
-	arr = array('B', flatlist)
-	#Np = mixer_context.size[0] * mixer_context.size[1] * 4
-	#data = struct.pack("%dB" % Np, arr)
-	ser.write(arr)
+	global ser, outmap
+	#ser.write(outmap.map(mixer_context.frame))
+	print outmap.map(mixer_context.frame)
 	#ser.flushOutput()
 
 def demo_update(mixer_context):
@@ -36,12 +34,15 @@ if __name__=="__main__":
 	s = pygame.Surface((16,16))
 	sc = pygame.Surface((320,320))
 
+	outmap = OutputMap()
+	outmap.outputs = [ [0,[1,1]], [1,[10,10]] ]
+
 	try:
 		import serial
 		ser = serial.Serial()
 		#ser.setPort("/dev/ttyUSB1")
 		ser.setPort("COM13")
-		ser.setBaudrate(3000000)		# from testing, we are going to need a super high BR for 16x16
+		ser.setBaudrate(650000)		# from testing, we are going to need a super high BR for 16x16
 		# TODO: If we are using fewer than 16x16 LEDs, speed this up by mapping them
 		# and only transmitting the ones we use
 		try:
