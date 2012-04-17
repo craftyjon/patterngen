@@ -3,6 +3,8 @@ import sys
 from pygame.locals import *
 import struct
 from array import array
+import zmq
+import time
 
 from timebase.metronome import Metronome
 #from timebase.beatdetector import BeatDetector
@@ -37,6 +39,10 @@ if __name__=="__main__":
 	outmap = OutputMap()
 	outmap.outputs = [ [0,[1,1]], [1,[10,10]] ]
 
+	context = zmq.Context()
+	socket = context.socket(zmq.PAIR)
+	socket.connect("tcp://127.0.0.101:5443")
+
 	try:
 		import serial
 		ser = serial.Serial()
@@ -60,8 +66,13 @@ if __name__=="__main__":
 	mixer.set_tick_callback(demo_update)
 
 	mixer.run()
+	while True:
+		try:
+			msg = socket.recv(flags=zmq.NOBLOCK)
+			print msg
+		except:
+			pass
 
-	while 1:
 		event = pygame.event.wait()
 		if event.type == pygame.QUIT:
 			mixer.stop()
@@ -82,12 +93,15 @@ if __name__=="__main__":
 			if event.key == pygame.K_ESCAPE or event.key== pygame.K_q:
 				mixer.stop()
 				sys.exit()
+
 		if event.type == pygame.USEREVENT:
 			try:
 				pygame.surfarray.blit_array(s, mixer.get_frame().buffer)
 			except:
 				mixer.stop()
 				sys.exit()
+
+		
 
 		sc = pygame.transform.smoothscale(s, (320,320))
 
