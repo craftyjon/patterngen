@@ -1,4 +1,4 @@
-from bottle import route, run
+from bottle import route, run, static_file, template
 import paste
 import time
 import zmq
@@ -8,7 +8,12 @@ from message import *
 @route('/')
 def index():
 	rpc_blackout()
-	return 'test'
+	return template('web/templates/base.tpl')
+
+@route('/static/<filename:path>')
+def send_static(filename):
+	return static_file(filename, root='web/static')
+
 
 @route('/rpc/start')
 def rpc_start():
@@ -37,6 +42,9 @@ def rpc_blackout():
 if __name__=="__main__":
 	context = zmq.Context()
 	socket = context.socket(zmq.PAIR)
-	socket.bind("tcp://127.0.0.101:5443")
+	try:
+		socket.bind("tcp://127.0.0.101:5443")
+	except:
+		print "Could not open socket"
 
-	run(server='paste')
+	run(reloader=True)
