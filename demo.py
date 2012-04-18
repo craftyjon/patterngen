@@ -5,6 +5,7 @@ import struct
 from array import array
 import zmq
 import time
+import logging as log
 
 from message import *
 from timebase.metronome import Metronome
@@ -32,7 +33,7 @@ def send_status():
 	status = {	'running': not mixer.paused,
 				'blacked_out': mixer.blacked_out,
 				'timebase_running': mixer.timebase.running,
-				'current_preset': mixer.presets[mixer.active_preset].__class__.__name__
+				'current_preset': mixer.get_preset_name()
 				}
 	socket.send_json(status)
 
@@ -64,7 +65,7 @@ if __name__=="__main__":
 		try:
 			ser.open()
 		except serial.SerialException:
-			print "Warning, could not open serial port"
+			log.warn("Could not open serial port")
 			ser = None
 	except:
 		ser = None
@@ -84,21 +85,30 @@ if __name__=="__main__":
 			pass
 
 		if msg is not None:
-			print "RPC: ", msg
+			log.info("RPC: ", msg)
 			if msg['cmd'] == MSG_START:
 				mixer.run()
+				send_status()
 			if msg['cmd'] == MSG_STOP:
 				mixer.stop()
+				send_status()
 			if msg['cmd'] == MSG_BLACKOUT:
 				mixer.blackout()
+				send_status()
 			if msg['cmd'] == MSG_GET_STATUS:
-				pass
+				send_status()
+			if msg['cmd'] == MSG_PRESET_NEXT:
+				mixer.next()
+				send_status()
+			if msg['cmd'] == MSG_PRESET_PREV:
+				mixer.prev()
+				send_status()
 			if msg['cmd'] == MSG_PLAYPAUSE:
 				if not mixer.paused:
 					mixer.pause()
 				else:
 					mixer.run()
-			send_status()
+				send_status()
 
 		event = pygame.event.wait()
 		if event.type == pygame.QUIT:
@@ -127,8 +137,6 @@ if __name__=="__main__":
 			except:
 				mixer.stop()
 				sys.exit()
-
-		
 
 		sc = pygame.transform.smoothscale(s, (320,320))
 

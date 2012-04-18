@@ -60,6 +60,7 @@ class Mixer:
 
 	def pause(self):
 		self.timebase.stop()
+		self.preset_runtime = 0.0
 		self.paused = True
 
 	def set_tick_callback(self, cb):
@@ -127,6 +128,15 @@ class Mixer:
 		self.in_transition = True
 		self.transition_state = 0.0
 
+	def prev(self):
+		if self.in_transition == True or self.paused == True or len(self.presets) < 2:
+			return False
+		self.next_preset = (self.active_preset - 1)
+		if self.next_preset < 0:
+			self.next_preset = len(self_presets) - 1
+		self.in_transition = True
+		self.transition_state = 0.0
+
 	def cut(self, delta):
 		self.active_preset = (self.active_preset + delta) % len(self.presets)
 		self.in_transition = False
@@ -134,6 +144,12 @@ class Mixer:
 
 	def get_frame(self):
 		return self.frame
+
+	def get_preset_name(self):
+		if self.in_transition:
+			return self.presets[self.next_preset].__class__.__name__
+		else:
+			return self.presets[self.active_preset].__class__.__name__
 
 	def blackout(self):
 		self.blacked_out = not self.blacked_out

@@ -27,7 +27,8 @@ def send_msg(msg, timeout=100):
 
 @route('/')
 def index():
-	return template('web/templates/base.tpl')
+	status = send_msg({'cmd':MSG_GET_STATUS})
+	return template('web/templates/base.tpl', {'current_preset':status['current_preset']})
 
 @route('/static/<filename:path>')
 def send_static(filename):
@@ -69,6 +70,22 @@ def rpc_blackout():
 @get('/rpc/status')
 def rpc_status():
 	status = send_msg({'cmd':MSG_GET_STATUS})
+	if status is not None:
+		return status
+	else:
+		return "Error"
+
+@get('/rpc/next')
+def rpc_status():
+	status = send_msg({'cmd':MSG_PRESET_NEXT})
+	if status is not None:
+		return status
+	else:
+		return "Error"
+
+@get('/rpc/prev')
+def rpc_status():
+	status = send_msg({'cmd':MSG_PRESET_PREV})
 	if status is not None:
 		return status
 	else:
