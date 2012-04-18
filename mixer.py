@@ -21,6 +21,7 @@ class Mixer:
 		self.loaded_preset = 1
 		self.running = False
 		self.paused = False
+		self.blacked_out = False
 		self.hard_cut = False
 		self.in_transition = False
 		self.preset_time = 8.0
@@ -99,12 +100,15 @@ class Mixer:
 		self.paused = not self.paused
 
 	def draw(self):
-		if self.in_transition is True:
-			oldframe = self.presets[self.active_preset].get_frame() * (1.0 - (self.transition_state/self.transition_time))
-			newframe = self.presets[self.next_preset].get_frame() * (self.transition_state/self.transition_time)
-			self.frame = oldframe + newframe
+		if self.blacked_out == True:
+			self.frame = Frame(self.size)
 		else:
-			self.frame = self.presets[self.active_preset].get_frame()
+			if self.in_transition is True:
+				oldframe = self.presets[self.active_preset].get_frame() * (1.0 - (self.transition_state/self.transition_time))
+				newframe = self.presets[self.next_preset].get_frame() * (self.transition_state/self.transition_time)
+				self.frame = oldframe + newframe
+			else:
+				self.frame = self.presets[self.active_preset].get_frame()
 
 	def next(self):
 		if self.in_transition == True or self.paused == True or len(self.presets) < 2:
@@ -120,3 +124,6 @@ class Mixer:
 
 	def get_frame(self):
 		return self.frame
+
+	def blackout(self):
+		self.blacked_out = not self.blacked_out

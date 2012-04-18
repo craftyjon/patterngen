@@ -6,6 +6,7 @@ from array import array
 import zmq
 import time
 
+from message import *
 from timebase.metronome import Metronome
 #from timebase.beatdetector import BeatDetector
 from mixer import Mixer
@@ -68,10 +69,19 @@ if __name__=="__main__":
 	mixer.run()
 	while True:
 		try:
-			msg = socket.recv(flags=zmq.NOBLOCK)
-			print msg
+			msg = None
+			msg = socket.recv_pyobj(flags=zmq.NOBLOCK)
 		except:
 			pass
+
+		if msg is not None:
+			print "RPC: ", msg
+			if msg == MSG_START:
+				mixer.run()
+			if msg == MSG_STOP:
+				mixer.stop()
+			if msg == MSG_BLACKOUT:
+				mixer.blackout()
 
 		event = pygame.event.wait()
 		if event.type == pygame.QUIT:
