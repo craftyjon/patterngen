@@ -18,11 +18,17 @@ def send_msg(msg, timeout=100):
 			try:
 				reply = socket.recv_json(flags=zmq.NOBLOCK)
 			except:
-				log.error("Could not receive reply")
+				log.warn("Could not receive reply")
 		else:
-			log.error("Timeout while waiting for reply")
+			log.warn("Timeout while waiting for reply")
 	except:
-		log.error("Could not send command.  Is the socket open?")
+		log.warn("Could not send command.  Trying to reopen socket...")
+		#Try a reconnect
+		socket = context.socket(zmq.REQ)
+		try:
+			socket.bind("tcp://127.0.0.101:5443")
+		except:
+			log.error("Could not open socket")
 	return reply
 
 @route('/')
