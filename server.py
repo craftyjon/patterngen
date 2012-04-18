@@ -27,7 +27,7 @@ def send_msg(msg, timeout=100):
 
 @route('/')
 def index():
-	status = send_msg({'cmd':MSG_GET_STATUS})
+	status = send_msg({'cmd':MSG_GET_STATUS}) or {'current_preset':'None'}
 	return template('web/templates/base.tpl', {'current_preset':status['current_preset']})
 
 @route('/static/<filename:path>')

@@ -29,7 +29,7 @@
     	font-weight: bold;
     }
     </style>
-    <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+    <!--<link href="/static/css/bootstrap-responsive.css" rel="stylesheet">-->
 
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -40,7 +40,7 @@
   	<div class="navbar navbar-fixed-top">
   		<div class="navbar-inner">
   			<div class="container-fluid">
-  				<a class="brand" href="#">OpenLights Server</a>
+  				<a class="brand" href="#">OpenLights</a>
 				<form class="navbar-form pull-right">
 					<a class="btn" id="btn-settings" title="Settings"><i class="icon-cog"></i></a>
 					<a class="btn" id="btn-presets" title="Presets"><i class="icon-list-alt"></i></a>
