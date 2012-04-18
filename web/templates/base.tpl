@@ -42,8 +42,9 @@
   			<div class="container-fluid">
   				<a class="brand" href="#">OpenLights</a>
 				<form class="navbar-form pull-right">
-					<a class="btn" id="btn-settings" title="Settings"><i class="icon-cog"></i></a>
-					<a class="btn" id="btn-presets" title="Presets"><i class="icon-list-alt"></i></a>
+					<a class="btn" id="btn-preview" title="Preview" data-toggle="pill" href="#preview"><i class="icon-film"></i></a>
+					<a class="btn" id="btn-settings" title="Settings" data-toggle="pill" href="#settings"><i class="icon-cog"></i></a>
+					<a class="btn" id="btn-presets" title="Presets" data-toggle="pill" href="#presets"><i class="icon-list-alt"></i></a>
 					<a class="btn" id="btn-beatdetect" title="Beat Detection is On"><i class="icon-volume-up"></i></a>
 					<a class="btn" id="btn-blackout" title="Blackout"><i class="icon-eye-close"></i></a>
 					<a class="btn" id="btn-playpause" title="Pause"><i class="icon-pause"></i></a>
@@ -52,7 +53,19 @@
   		</div>
   	</div>
   	<div class="container-fluid">
-
+  		<div class="tabbable">
+  			<div class="tab-content">
+  				<div class="tab-pane active" id="preview">
+  					Pane 1: Preview video
+  				</div>
+  				<div class="tab-pane" id="presets">
+  					Pane 2: Preset List
+  				</div>
+  				<div class="tab-pane" id="settings">
+  					Pane 3: Settings
+  				</div>
+  			</div>
+  		</div>
   	</div>
   	<div class="navbar navbar-fixed-bottom">
   		<div class="navbar-inner">
