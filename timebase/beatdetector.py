@@ -32,15 +32,18 @@ class BeatDetector(Timebase):
 		self.ffty = []
 		self.fftx = []
 		self.is_beat = False
+		self.running = False
 		self.audio_data = AudioData()
 		self.ticks_since_beat = 101
 
 	def start(self):
 		self.create_input_thread()
 		self.create_process_thread()
+		self.running = True
 
 	def stop(self):
 		self.shutdown_event.set()
+		self.running = False
 		#self.process_thread_id.join()
 		#self.input_thread_id.join()
 

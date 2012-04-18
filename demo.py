@@ -27,6 +27,15 @@ def demo_update(mixer_context):
 	if not pygame.event.peek(pygame.USEREVENT):
 		pygame.event.post(e)
 
+def send_status():
+	global mixer, socket
+	status = {	'running': mixer.running,
+				'blacked_out': mixer.blacked_out,
+				'timebase_running': mixer.timebase.running,
+				'current_preset': mixer.presets[mixer.active_preset].__class__.__name__
+				}
+	socket.send_json(status)
+
 if __name__=="__main__":
 	pygame.init()
 
@@ -41,7 +50,7 @@ if __name__=="__main__":
 	outmap.outputs = [ [0,[1,1]], [1,[10,10]] ]
 
 	context = zmq.Context()
-	socket = context.socket(zmq.PAIR)
+	socket = context.socket(zmq.REP)
 	socket.connect("tcp://127.0.0.101:5443")
 
 	try:
@@ -70,18 +79,21 @@ if __name__=="__main__":
 	while True:
 		try:
 			msg = None
-			msg = socket.recv_pyobj(flags=zmq.NOBLOCK)
+			msg = socket.recv_json(flags=zmq.NOBLOCK)
 		except:
 			pass
 
 		if msg is not None:
 			print "RPC: ", msg
-			if msg == MSG_START:
+			if msg['cmd'] == MSG_START:
 				mixer.run()
-			if msg == MSG_STOP:
+			if msg['cmd'] == MSG_STOP:
 				mixer.stop()
-			if msg == MSG_BLACKOUT:
+			if msg['cmd'] == MSG_BLACKOUT:
 				mixer.blackout()
+			if msg['cmd'] == MSG_GET_STATUS:
+				pass
+			send_status()
 
 		event = pygame.event.wait()
 		if event.type == pygame.QUIT:

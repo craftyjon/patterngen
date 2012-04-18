@@ -2,6 +2,7 @@
 MSG_START = 0x10
 MSG_STOP = 0x11
 MSG_BLACKOUT = 0x12
+MSG_GET_STATUS = 0x13
 
 class Message:
 	def __init__(self, pl=None):
@@ -19,6 +20,6 @@ class Message:
 		else:
 			return (self.payload == other)
 
-	def autoload(self, payload):
-		self.payload = payload
-		return self
+	def get_cmd(self, cmd):
+		self.payload = cmd
+		return {'cmd': cmd}
