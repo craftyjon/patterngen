@@ -41,6 +41,10 @@ class Mixer:
 			#	print "Error loading preset "+name+"!"
 
 	def run(self):
+		if self.paused == True:
+			self.paused = False
+			self.timebase.start()
+			return
 		self.last_time = time.time()
 		self.draw_timer.start()
 		self.running = True
@@ -54,36 +58,42 @@ class Mixer:
 			self.draw_timer.join()
 		self.timebase.stop()
 
+	def pause(self):
+		self.timebase.stop()
+		self.paused = True
+
 	def set_tick_callback(self, cb):
 		self.tick_callback = cb
 
 	def on_tick(self):
 		if not self.running:
 			return False
-		audio_data = self.timebase.get_data()
-		self.time_delta = time.time() - self.last_time
-		self.last_time = time.time()
-		if self.preset_runtime >= self.preset_time:
-			self.preset_runtime = 0.0
-			self.next()
 
-		if self.in_transition:
-			if self.hard_cut is True and audio_data.is_beat is True:
-				self.cut(1)
-				self.presets[self.active_preset].tick(self.time_delta, audio_data)
+		if not self.paused:
+			audio_data = self.timebase.get_data()
+			self.time_delta = time.time() - self.last_time
+			self.last_time = time.time()
+			if self.preset_runtime >= self.preset_time:
+				self.preset_runtime = 0.0
+				self.next()
+
+			if self.in_transition:
+				if self.hard_cut is True and audio_data.is_beat is True:
+					self.cut(1)
+					self.presets[self.active_preset].tick(self.time_delta, audio_data)
+				else:
+					if audio_data.is_beat is True or self.transition_state > 0.0:	#delay start until beat
+						self.transition_state += self.time_delta
+						if self.transition_state >= self.transition_time:
+							self.in_transition = False
+							t = self.active_preset
+							self.active_preset = self.next_preset
+							self.next_preset = t
+					self.presets[self.active_preset].tick(self.time_delta, audio_data)
+					self.presets[self.next_preset].tick(self.time_delta, audio_data)
 			else:
-				if audio_data.is_beat is True or self.transition_state > 0.0:	#delay start until beat
-					self.transition_state += self.time_delta
-					if self.transition_state >= self.transition_time:
-						self.in_transition = False
-						t = self.active_preset
-						self.active_preset = self.next_preset
-						self.next_preset = t
+				self.preset_runtime += self.time_delta
 				self.presets[self.active_preset].tick(self.time_delta, audio_data)
-				self.presets[self.next_preset].tick(self.time_delta, audio_data)
-		else:
-			self.preset_runtime += self.time_delta
-			self.presets[self.active_preset].tick(self.time_delta, audio_data)
 
 		self.draw()
 

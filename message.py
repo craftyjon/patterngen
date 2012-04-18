@@ -3,6 +3,7 @@ MSG_START = 0x10
 MSG_STOP = 0x11
 MSG_BLACKOUT = 0x12
 MSG_GET_STATUS = 0x13
+MSG_PLAYPAUSE = 0x14
 
 class Message:
 	def __init__(self, pl=None):

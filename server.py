@@ -58,6 +58,14 @@ def rpc_blackout():
 	else:
 		return "Error"
 
+@route('/rpc/playpause')
+def rpc_blackout():
+	status = send_msg({'cmd':MSG_PLAYPAUSE})
+	if status is not None:
+		return status
+	else:
+		return "Error"
+
 @get('/rpc/status')
 def rpc_status():
 	status = send_msg({'cmd':MSG_GET_STATUS})

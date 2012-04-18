@@ -29,7 +29,7 @@ def demo_update(mixer_context):
 
 def send_status():
 	global mixer, socket
-	status = {	'running': mixer.running,
+	status = {	'running': not mixer.paused,
 				'blacked_out': mixer.blacked_out,
 				'timebase_running': mixer.timebase.running,
 				'current_preset': mixer.presets[mixer.active_preset].__class__.__name__
@@ -93,6 +93,11 @@ if __name__=="__main__":
 				mixer.blackout()
 			if msg['cmd'] == MSG_GET_STATUS:
 				pass
+			if msg['cmd'] == MSG_PLAYPAUSE:
+				if not mixer.paused:
+					mixer.pause()
+				else:
+					mixer.run()
 			send_status()
 
 		event = pygame.event.wait()
