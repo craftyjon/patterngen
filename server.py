@@ -110,8 +110,9 @@ if __name__=="__main__":
 
     try:
         con = sqlite3.connect('presets.db')
-        cur = con.cursor()
         con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        
     except sqlite3.Error, e:
         log.error("Sqlite Error: %s" % e.args[0])
         if con:

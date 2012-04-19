@@ -1,9 +1,22 @@
-See 
+== Dependencies ==
+
+Python 2.7
+Numpy 1.6+
+Scipy (for beat detector)
+PySqlite3
+Pyzmq (ZeroMQ)
+Pygame 1.9 (for demo)
+Pyserial (for hardware output)
+
+== Getting Started ==
+
+After a checkout, run db_bootstrapper.py to create a preset database.
+
+Run demo.py for the pattern generator.
+
+Run server.py for the web server.
+
+== More Information ==
 
 https://gitorious.org/openlights-strand/pages/Home
-
-and
-
 http://openlights.org/
-
-for more information
