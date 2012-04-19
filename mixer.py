@@ -32,7 +32,9 @@ class Mixer:
         self.last_time = 0.0
         self.time_delta = 0.0
         self.tick_callback = None
-    
+
+
+        #TODO: Make this less magical -- maybe a config file or sqlite DB for presets?
         for name,obj in inspect.getmembers(presets, inspect.isclass):
             #try:
             self.presets.append(obj(self.size))
