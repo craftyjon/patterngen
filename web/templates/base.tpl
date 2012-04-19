@@ -62,11 +62,11 @@
   					%if preset_rows:
                         <table class="table table-striped">
                         <thead>
-                            <tr><td>Name</td><td>Runtime</td><td>Fadetime</td><td>Active</td></tr>
+                            <tr><td>Name</td><td>Active</td></tr>
                         </thead>
                         <tbody>
                         %for preset in preset_rows:
-                            <tr><td>{{preset[1]}}</td><td>{{preset[3]}}</td><td>{{preset[4]}}</td><td>{{preset[2]}}</td></tr>
+                            <tr><td>{{preset[1]}}</td><td>{{preset[2]}}</td></tr>
                         %end
                         </tbody>
                         </table>

@@ -122,4 +122,6 @@ if __name__=="__main__":
         cur.execute("select * from presets")
         preset_rows = cur.fetchall()
 
+    print preset_rows
+
     run()#reloader=True)

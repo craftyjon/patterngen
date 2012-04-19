@@ -34,7 +34,19 @@ if __name__=="__main__":
         if con:
             con.close()
 
-    cur.execute("CREATE TABLE presets (id integer primary key autoincrement, classname text, active integer, runtime real, fadetime real)")
+    cur.execute("CREATE TABLE presets (id integer primary key autoincrement, classname text, active integer)")
     con.commit()
 
     print "Loading presets..."
+    try:
+        import presets
+    except ImportError:
+        print "Could not import presets.  Is your presets/ directory a real package?"
+        sys.exit(1)
+
+    for name,obj in inspect.getmembers(presets, inspect.isclass):
+        print "Adding %s" % name
+        cur.execute("INSERT INTO presets (classname, active) VALUES (?, 1)", [name])
+
+    con.commit()
+    con.close()
