@@ -8,21 +8,21 @@ MSG_PRESET_NEXT = 0x15
 MSG_PRESET_PREV = 0x16
 
 class Message:
-	def __init__(self, pl=None):
-		self.payload = pl
+    def __init__(self, pl=None):
+        self.payload = pl
 
-	def __repr__(self):
-		return "[Message] "+hex(self.payload)
+    def __repr__(self):
+        return "[Message] "+hex(self.payload)
 
-	#def __str__(self):
-	#	return self.__repr__()
+    #def __str__(self):
+    #    return self.__repr__()
 
-	def __eq__(self, other):
-		if isinstance(other, Message):
-			return (self.payload == other.payload)
-		else:
-			return (self.payload == other)
+    def __eq__(self, other):
+        if isinstance(other, Message):
+            return (self.payload == other.payload)
+        else:
+            return (self.payload == other)
 
-	def get_cmd(self, cmd):
-		self.payload = cmd
-		return {'cmd': cmd}
+    def get_cmd(self, cmd):
+        self.payload = cmd
+        return {'cmd': cmd}
