@@ -4,6 +4,8 @@ from pygame.locals import *
 from array import array
 import zmq
 import time
+import struct
+import serial
 import logging as log
 
 from message import *
@@ -13,69 +15,87 @@ from mixer import Mixer
 from outputmap import OutputMap
 
 idx = 0
+enable_graphics = False
+
+
 def serial_update(mixer_context):
     global ser, outmap
-    #ser.write(outmap.map(mixer_context.frame))
-    print outmap.map(mixer_context.frame)
-    #ser.flushOutput()
+    data = list(outmap.map(mixer_context.frame))
+
+    checksum = 0
+    for member in data:
+        checksum ^= member
+
+    data += [checksum]
+    packet = [0x99, 0x10, 0xC0, 0x00] + data
+   # print data
+
+    buf = "".join([struct.pack('B', char) for char in packet])
+
+    ser.write(buf)
+    ser.flushInput()
+
 
 def demo_update(mixer_context):
     global ser
-    e = pygame.event.Event(pygame.USEREVENT, {'code':0})
+    e = pygame.event.Event(pygame.USEREVENT, {'code': 0})
     if ser is not None:
         serial_update(mixer_context)
     if not pygame.event.peek(pygame.USEREVENT):
         pygame.event.post(e)
 
+
 def send_status():
     global mixer, socket
-    status = {    'running': not mixer.paused,
+    status = {'running': not mixer.paused,
                 'blacked_out': mixer.blacked_out,
                 'timebase_running': mixer.timebase.running,
                 'current_preset': mixer.get_preset_name()
                 }
     socket.send_json(status)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     pygame.init()
 
     size = width, height = 336, 320
     screen = pygame.display.set_mode(size)
     pygame.event.set_allowed([QUIT, KEYDOWN, USEREVENT])
 
-    s = pygame.Surface((16,16))
-    sc = pygame.Surface((320,320))
+    s = pygame.Surface((16, 16))
+    sc = pygame.Surface((320, 320))
 
     outmap = OutputMap()
-    outmap.outputs = [ [0,[1,1]], [1,[10,10]] ]
+    outmap.outputs = [[i, [(i / 4) % 16, i % 16]] for i in range(64)]
+    #print outmap.outputs
 
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.connect("tcp://127.0.0.101:5443")
 
     try:
-        import serial
-        ser = serial.Serial()
-        #ser.setPort("/dev/ttyUSB1")
-        ser.setPort("COM13")
-        ser.setBaudrate(650000)        # from testing, we are going to need a super high BR for 16x16
-        # TODO: If we are using fewer than 16x16 LEDs, speed this up by mapping them
-        # and only transmitting the ones we use
-        try:
-            ser.open()
-        except serial.SerialException:
-            log.warn("Could not open serial port")
-            ser = None
+        ser = serial.Serial('/dev/ttyACM0', 2000000, timeout=2)
+
+        buf = "".join([struct.pack('B', char) for char in [0x99, 0x13, 0x03, 0x00, 0x33, 0x11, 0x00, 0x22]])
+        ser.write(buf)
     except:
+        log.warn("Could not open serial port")
         ser = None
-    
-    mixer = Mixer((16,16))
+
+    mixer = Mixer((16, 16))
     mixer.set_timebase(Metronome)
     #mixer.set_timebase(BeatDetector)
 
-    mixer.set_tick_callback(demo_update)
+    if ser:
+        mixer.set_tick_callback(demo_update)
 
     mixer.run()
+
+    pygame.surfarray.blit_array(s, mixer.get_frame().buffer)
+    sc = pygame.transform.smoothscale(s, (320, 320))
+    screen.blit(sc, sc.get_rect())
+    screen.blit(s, (320, 0))
+    pygame.display.flip()
+
     while True:
         try:
             msg = None
@@ -126,19 +146,19 @@ if __name__=="__main__":
                 mixer.cut(-1)
             if event.key == pygame.K_COMMA:
                 mixer.toggle_paused()
-            if event.key == pygame.K_ESCAPE or event.key== pygame.K_q:
+            if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
                 mixer.stop()
                 sys.exit()
 
-        if event.type == pygame.USEREVENT:
-            try:
-                pygame.surfarray.blit_array(s, mixer.get_frame().buffer)
-            except:
-                mixer.stop()
-                sys.exit()
+        if enable_graphics:
+            if event.type == pygame.USEREVENT:
+                try:
+                    pygame.surfarray.blit_array(s, mixer.get_frame().buffer)
+                except:
+                    mixer.stop()
+                    sys.exit()
 
-        sc = pygame.transform.smoothscale(s, (320,320))
-
-        screen.blit(sc, sc.get_rect())
-        screen.blit(s, (320,0))
-        pygame.display.flip()
+            sc = pygame.transform.smoothscale(s, (320, 320))
+            screen.blit(sc, sc.get_rect())
+            screen.blit(s, (320, 0))
+            pygame.display.flip()

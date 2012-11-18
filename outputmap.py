@@ -14,7 +14,7 @@ class OutputMap:
         outlist = []
 
         for output in self.outputs:
-            outlist.append(output[0])
+            #outlist.append(output[0])
             outlist.append(buf[output[1][0]][output[1][1]][0])
             outlist.append(buf[output[1][0]][output[1][1]][1])
             outlist.append(buf[output[1][0]][output[1][1]][2])

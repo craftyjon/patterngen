@@ -71,7 +71,7 @@ class Mixer:
         try:
             self.cur.execute("select * from presets")
             preset_rows = self.cur.fetchall()
-        except sqlite3.Error,e:
+        except sqlite3.Error, e:
             log.warn("Could not fetch presets: %s" % e.args[0])
             return False
         self.preset_list = {}
