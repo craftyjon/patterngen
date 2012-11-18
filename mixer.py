@@ -1,24 +1,25 @@
-import numpy as np
+# import numpy as np
 from threading import Timer
-import inspect
+# import inspect
 import sqlite3
 import time
 import copy
 import logging
 
 from frame import Frame
-from timebase.audiodata import AudioData
+# from timebase.audiodata import AudioData
 import presets
 
 log = logging.getLogger('root')
 log.setLevel(logging.INFO)
 
+
 class Mixer:
-    def __init__(self, size=(24,24)):
+    def __init__(self, size=(24, 24)):
         self.size = size
         self.frame = Frame(size)
         self.presets = []
-        
+
         self.timebase = None
         self.draw_interval = 0.005
         self.draw_timer = Timer(self.draw_interval, self.on_tick)
@@ -101,7 +102,7 @@ class Mixer:
                 else:
                     index += delta
             else:
-                log.error("Could not pick a next index for %d (last try: %d)" % (self.current_preset_index,index))
+                log.error("Could not pick a next index for %d (last try: %d)" % (self.current_preset_index, index))
                 break
 
         try:
@@ -158,7 +159,7 @@ class Mixer:
                     self.cut(1)
                     self.current_preset_obj.tick(self.time_delta, audio_data)
                 else:
-                    if audio_data.is_beat is True or self.transition_state > 0.0:    #delay start until beat
+                    if audio_data.is_beat is True or self.transition_state > 0.0:    # delay start until beat
                         self.transition_state += self.time_delta
                         if self.transition_state >= self.transition_time:
                             self.current_preset_obj = copy.deepcopy(self.next_preset_obj)
@@ -178,7 +179,6 @@ class Mixer:
 
     def set_timebase(self, timebase):
         self.timebase = timebase(None)
-        
 
     def toggle_paused(self):
         self.paused = not self.paused
@@ -188,13 +188,13 @@ class Mixer:
             self.frame = Frame(self.size)
         else:
             if self.in_transition is True:
-                oldframe = self.current_preset_obj.get_frame() * (1.0 - (self.transition_state/self.transition_time))
-                newframe = self.next_preset_obj.get_frame() * (self.transition_state/self.transition_time)
+                oldframe = self.current_preset_obj.get_frame() * (1.0 - (self.transition_state / self.transition_time))
+                newframe = self.next_preset_obj.get_frame() * (self.transition_state / self.transition_time)
                 self.frame = oldframe + newframe
             else:
                 self.frame = self.current_preset_obj.get_frame()
 
-    def next(self): 
+    def next(self):
         if self.in_transition or self.paused or len(self.preset_list) < 2:
             return False
 
