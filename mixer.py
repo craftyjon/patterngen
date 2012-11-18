@@ -209,11 +209,13 @@ class Mixer:
         self.in_transition = True
         self.transition_state = 0.0
 
-    # TODO: This is broken in the new (DB) preset scheme
     def cut(self, delta):
-        self.active_preset = (self.active_preset + delta) % len(self.presets)
-        self.in_transition = False
-        self.preset_runtime = 0.0
+        if delta:
+            self.next()
+            self.transition_state = 1.0
+        else:
+            self.prev()
+            self.transition_state = 1.0
 
     def get_frame(self):
         return self.frame
