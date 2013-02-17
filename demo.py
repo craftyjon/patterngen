@@ -15,19 +15,51 @@ from mixer import Mixer
 from outputmap import OutputMap
 
 idx = 0
-enable_graphics = False
+enable_graphics = True
+
+
+def send_command(cmd, data):
+    global ser
+    l = len(data)
+    checksum = 0
+    for member in data:
+        checksum ^= member
+    data += [checksum]
+    packet = [0x99, 0x00, cmd] + [l & 0xFF, (l & 0xFF00) >> 1] + data
+
+    #print "send_command: ", [hex(c) for c in packet]
+    buf = "".join([struct.pack('B', char) for char in packet])
+    ser.write(buf)
+    ser.flushInput()
+    return True
 
 
 def serial_update(mixer_context):
     global ser, outmap
     data = list(outmap.map(mixer_context.frame))
 
+    strand1 = data[:len(data) / 2]
+    strand2 = data[len(data) / 2:]
+
     checksum = 0
-    for member in data:
+    for member in strand1:
         checksum ^= member
 
-    data += [checksum]
-    packet = [0x99, 0x10, 0xC0, 0x00] + data
+    strand1 += [checksum]
+    packet = [0x99, 0x01, 0x10, 0xE0, 0x01] + strand1
+   # print data
+
+    buf = "".join([struct.pack('B', char) for char in packet])
+
+    ser.write(buf)
+    ser.flushInput()
+
+    checksum = 0
+    for member in strand2:
+        checksum ^= member
+
+    strand2 += [checksum]
+    packet = [0x99, 0x02, 0x10, 0xE0, 0x01] + strand2
    # print data
 
     buf = "".join([struct.pack('B', char) for char in packet])
@@ -61,11 +93,11 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode(size)
     pygame.event.set_allowed([QUIT, KEYDOWN, USEREVENT])
 
-    s = pygame.Surface((16, 16))
+    s = pygame.Surface((32, 32))
     sc = pygame.Surface((320, 320))
 
     outmap = OutputMap()
-    outmap.outputs = [[i, [(i / 4) % 16, i % 16]] for i in range(64)]
+    outmap.outputs = [[i, [(i / 2) % 32, i % 32]] for i in range(32 * 10)]
     #print outmap.outputs
 
     context = zmq.Context()
@@ -75,13 +107,15 @@ if __name__ == "__main__":
     try:
         ser = serial.Serial('/dev/ttyACM0', 2000000, timeout=2)
 
-        buf = "".join([struct.pack('B', char) for char in [0x99, 0x13, 0x03, 0x00, 0x33, 0x11, 0x00, 0x22]])
-        ser.write(buf)
+        #buf = "".join([struct.pack('B', char) for char in [0x99, 0x13, 0x03, 0x00, 0x33, 0x11, 0x00, 0x22]])
+        #ser.write(buf)
     except:
         log.warn("Could not open serial port")
         ser = None
 
-    mixer = Mixer((16, 16))
+    #send_command(0x15, [0x40])
+
+    mixer = Mixer((32, 32))
     mixer.set_timebase(Metronome)
     #mixer.set_timebase(BeatDetector)
 

@@ -39,7 +39,7 @@ class Mixer:
         self.blacked_out = False
         self.hard_cut = False
         self.in_transition = False
-        self.preset_time = 3.0
+        self.preset_time = 10.0
         self.transition_time = 1.0
         self.transition_state = 0.0
         self.preset_runtime = 0.0
